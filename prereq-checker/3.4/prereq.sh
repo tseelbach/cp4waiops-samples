@@ -211,25 +211,33 @@ function checkOCPVersion {
   
   if [[ $OCP_VER == *"4.6"* || $OCP_VER == *"4.8"* || $OCP_VER == *"4.10"* ]]; then
     if [[ $OCP_VER == "4.8"* ]]; then
-      if [[ $OCP_MINOR_VER -ge 43 && -z $ODF_STORAGE ]]; then
+      if [[ $OCP_MINOR_VER -ge 43 && -n $ODF_STORAGE ]]; then
         log $INFO "OCP Version $OCP_VER is compatible with IBM Cloud Pak for Watson AIOps AI Manager"
         OCP_VER_RES=$pass_msg
         return 0
-      else
-        log $INFO "OCP Version $OCP_VER is not compatible with IBM Cloud Pak for Watson AIOps AI Manager. If you are using ODF storage, 4.8.43 is the miniumum supported level"
+      elif [[ $OCP_MINOR_VER -le 43 && -n $ODF_STORAGE ]]; then
+        log $INFO "OCP Version $OCP_VER is not compatible with IBM Cloud Pak for Watson AIOps AI Manager. If you are using ODF storage, 4.10.43 is the miniumum supported level"
         OCP_VER_RES=$fail_msg
         return 1
+      else
+        log $INFO "OCP Version $OCP_VER is compatible with IBM Cloud Pak for Watson AIOps AI Manager."
+        OCP_VER_RES=$pass_msg
+        return 0
       fi
     fi
     if [[ $OCP_VER == "4.10"* ]]; then
-      if [[ $OCP_MINOR_VER -ge 17 && -z $ODF_STORAGE ]];then
+      if [[ $OCP_MINOR_VER -ge 17 && -n $ODF_STORAGE ]];then
         log $INFO "OCP Version $OCP_VER is compatible with IBM Cloud Pak for Watson AIOps AI Manager"
         OCP_VER_RES=$pass_msg
         return 0
-      else
+      elif [[ $OCP_MINOR_VER -lt 17 && -n $ODF_STORAGE ]] ;then
         log $INFO "OCP Version $OCP_VER is not compatible with IBM Cloud Pak for Watson AIOps AI Manager. If you are using ODF storage, 4.10.17 is the miniumum supported level"
         OCP_VER_RES=$fail_msg
         return 1
+      else
+        log $INFO "OCP Version $OCP_VER is compatible with IBM Cloud Pak for Watson AIOps AI Manager."
+        OCP_VER_RES=$pass_msg
+        return 0
       fi
     fi
     log $INFO "OCP Version $OCP_VER is compatible with IBM Cloud Pak for Watson AIOps AI Manager"
@@ -306,7 +314,7 @@ createTestJob () {
           - name: ibm-entitlement-key
           containers:
           - name: testimage
-            image: cp.icr.io/cp/cp4waiops/ai-platform-api-server@sha256:67635b62af17676d0f09f164d12486a0f9b7dc32c99574709c09e13a99df90ec
+            image: cp.icr.io/cp/cp4waiops/ai-platform-api-server@sha256:3e7a44829377e129ce59478f32aad877875c2c3a3593a03832188c2d8a758269
             imagePullPolicy: Always
             command: [ "echo", "SUCCESS" ]
           restartPolicy: OnFailure
@@ -336,7 +344,7 @@ EOF
                         - amd64
           containers:
           - name: testimage
-            image: cp.icr.io/cp/cp4waiops/ai-platform-api-server@sha256:67635b62af17676d0f09f164d12486a0f9b7dc32c99574709c09e13a99df90ec
+            image: cp.icr.io/cp/cp4waiops/ai-platform-api-server@sha256:3e7a44829377e129ce59478f32aad877875c2c3a3593a03832188c2d8a758269
             imagePullPolicy: Always
             command: [ "echo", "SUCCESS" ]
           restartPolicy: OnFailure
